@@ -58,7 +58,7 @@ namespace org.apache.zookeeper {
     /// the event handler a connection has been dropped. This special event has type
     /// EventType None and KeeperState Disconnected
     /// </remarks>
-    public class ZooKeeper {
+    public class ZooKeeper : IDisposable {
         private static readonly byte[] NO_PASSWORD = new byte[0];
         private static readonly ILogProducer LOG = TypeLogger<ZooKeeper>.Instance;
 
@@ -1169,5 +1169,24 @@ namespace org.apache.zookeeper {
         }
 
         #endregion
+        
+        /// <summary>
+        /// Dispose of the underlying client connection.
+        /// </summary>
+        /// <param name="disposingDeterministically">Indicates whether this method is called
+        /// deterministically (i.e., from the IDisposable.Dispose method), or from the finalizer.</param>
+        protected virtual void Dispose(bool disposingDeterministically)
+        {
+            closeAsync().GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Dispose of the underlying client connection.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }
